@@ -13,6 +13,9 @@ std::vector<std::vector<unsigned long long> > src_file;
 
 void read_in_file();
 void generate_verilog();
+void createInputString(std::string& inputs);
+void createOutputString(std::string& outputs);
+void createStateRegString(std::string& stateReg);
 
 int main(int argc, char* argv[]){
   filePath=argv[1];
@@ -37,11 +40,45 @@ int main(int argc, char* argv[]){
 void generate_verilog(){
   std::ofstream FILE;
   FILE.open(outputPath);
-  FILE<<"module "<<moduleName<<"();";
-
+  std::string inputs;
+  createInputString(inputs);
+  std::string outputs;
+  createOutputString(outputs);
+  FILE<<"module "<<moduleName<<"("<<inputs<<", "<<outputs<<");";
+  FILE<<"\n";
+  std::string stateReg;
+  createStateRegString(stateReg);
+  FILE<<stateReg;
 
 
   FILE.close();
+}
+
+
+void createStateRegString(std::string& stateReg){
+  stateReg="reg[";
+  unsigned long long numStates=src_file.size();
+  unsigned long long i=1;
+  unsigned long long ff=0;
+  while(i<numStates){i<<=1; ff++;}
+  std::string numStatesStr=std::to_string(ff-1);
+  stateReg.append(numStatesStr);
+  stateReg.append(":0] state;\n");
+
+}
+
+void createInputString(std::string& inputs){
+  inputs="input clk,";
+  //find # of inputs from file
+  unsigned long long numInputs = src_file[1].size();
+  inputs.append("input in[");
+  std::string numInputsStr=std::to_string(numInputs-1);
+  inputs.append(numInputsStr);
+  inputs.append(":0]");
+}
+
+void createOutputString(std::string& outputs){
+  outputs="output out";
 }
 
 void read_in_file(){
