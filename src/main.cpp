@@ -6,26 +6,43 @@
 #include <vector>
 
 std::string filePath;
+std::string outputPath;
+std::string moduleName;
 
 std::vector<std::vector<unsigned long long> > src_file;
 
 void read_in_file();
+void generate_verilog();
 
 int main(int argc, char* argv[]){
   filePath=argv[1];
+  int i=8;
+  while(filePath[i]!='_'){moduleName.push_back(filePath[i]);i++;}
+  outputPath=moduleName;
+  outputPath.append(".v");
+  std::cout<<outputPath<<std::endl;
   std::cout<<"\n**Reading in circuit from file..."<<std::endl;
   read_in_file();
   std::cout<<"Done Reading in file."<<std::endl;
+  std::cout<<"Generating High level Verilog..."<<std::endl;
+  generate_verilog();
+  std::cout<<"Verilog file outputed"<<std::endl;
 
-  for(std::vector <unsigned long long> v : src_file){
-    for (unsigned long long l : v){
-      std::cout<<l<<" ";
-    }
-    std::cout<<"\n";
-  }
+
+
 
 }
 
+
+void generate_verilog(){
+  std::ofstream FILE;
+  FILE.open(outputPath);
+  FILE<<"module "<<moduleName<<"();";
+
+
+
+  FILE.close();
+}
 
 void read_in_file(){
   std::ifstream FILE(filePath);
