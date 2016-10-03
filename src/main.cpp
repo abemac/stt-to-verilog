@@ -53,6 +53,7 @@ void generate_verilog(){
   FILE<<"\t"<<stateReg;
   FILE<<"\talways @(posedge clk) begin\n";
   std::string fsm;
+  std::cout<<"\tCreating FSM..."<<std::endl;
   createFSM(fsm);
   FILE<<fsm<<"\n";
 
