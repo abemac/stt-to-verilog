@@ -16,6 +16,8 @@ void generate_verilog();
 void createInputString(std::string& inputs);
 void createOutputString(std::string& outputs);
 void createStateRegString(std::string& stateReg);
+void createFSM(std::string& fsm);
+int outputct=0;
 
 int main(int argc, char* argv[]){
   filePath=argv[1];
@@ -48,12 +50,49 @@ void generate_verilog(){
   FILE<<"\n";
   std::string stateReg;
   createStateRegString(stateReg);
-  FILE<<stateReg;
+  FILE<<"\t"<<stateReg;
+  FILE<<"\talways @(posedge clk) begin\n";
+  std::string fsm;
+  createFSM(fsm);
+  FILE<<fsm<<"\n";
 
+  FILE<<"\tend\nendmodule";
 
   FILE.close();
 }
 
+
+void createFSM(std::string& fsm){
+  fsm="\t\tout<=0;";
+  fsm.append("\n\t\tcase (state)");
+  for(unsigned int i=0;i<src_file.size();i++){
+    fsm.append("\n\t\t\t");
+    fsm.append(std::to_string(i));
+    fsm.append(": begin\n");
+
+    for (unsigned int j=0;j<src_file[i].size();j++){
+      fsm.append("\t\t\t\tif(in == ");
+      fsm.append(std::to_string(j));
+      fsm.append(") begin\n");
+      fsm.append("\t\t\t\t\tstate<=");
+      fsm.append(std::to_string(src_file[i][j]));
+      fsm.append(";\n\t\t\t\t\tout<=");
+      fsm.append(std::to_string(outputct));
+      outputct++;
+      if(outputct>=256){
+        outputct=0;
+      }
+      fsm.append(";\n");
+      fsm.append("\t\t\t\tend\n");
+
+    }
+
+
+    fsm.append("\t\t\tend");
+  }
+
+  fsm.append("\n\t\tendcase");
+}
 
 void createStateRegString(std::string& stateReg){
   stateReg="reg[";
@@ -71,14 +110,17 @@ void createInputString(std::string& inputs){
   inputs="input clk,";
   //find # of inputs from file
   unsigned long long numInputs = src_file[1].size();
-  inputs.append("input in[");
-  std::string numInputsStr=std::to_string(numInputs-1);
-  inputs.append(numInputsStr);
-  inputs.append(":0]");
+  inputs.append("input[");
+  unsigned long long i=1;
+  unsigned long long ff=0;
+  while(i<numInputs){i<<=1; ff++;}
+  std::string numInsStr=std::to_string(ff-1);
+  inputs.append(numInsStr);
+  inputs.append(":0] in");
 }
 
 void createOutputString(std::string& outputs){
-  outputs="output out";
+  outputs="output [7:0] out";
 }
 
 void read_in_file(){
