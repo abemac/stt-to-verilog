@@ -59,7 +59,7 @@ void generate_verilog(){
 
   FILE<<"\tend\nendmodule";
 
-  FILE.close();
+  FILE.close();0
 }
 
 
